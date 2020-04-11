@@ -1,11 +1,10 @@
 {
   "hostname": {
-    "provider": "request",
+    "provider": "default",
 
-    "fixed": {
-      "hostname": "${keycloak.override.hostname:localhost}",
-      "httpPort": "${keycloak.override.httpPort:-1}",
-      "httpsPort": "${keycloak.override.httpsPort:-1}"
+    "default": {
+      "frontendUrl": "${keycloak.frontendUrl:}",
+      "forceBackendUrlToFrontendUrl": false
     }
   },
 
@@ -58,6 +57,8 @@
   },
 
   "theme": {
+    "default": "keycloakCN",
+    "welcomeTheme": "keycloakCN",
     "staticMaxAge": "${keycloak.theme.staticMaxAge:2592000}",
     "cacheTemplates": "${keycloak.theme.cacheTemplates:true}",
     "cacheThemes": "${keycloak.theme.cacheThemes:true}",
@@ -72,6 +73,15 @@
 
   "connectionsHttpClient": {
     "default": {}
+  },
+
+  "smsSender": {
+    "provider": "twilio",
+    "twilio": {
+      "accountSid": "testSid",
+      "authToken": "testToken",
+      "fromPhoneNumber": "testPhone"
+    }
   },
 
   "connectionsJpa": {

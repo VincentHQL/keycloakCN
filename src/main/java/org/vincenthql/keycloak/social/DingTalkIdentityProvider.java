@@ -56,46 +56,6 @@ public class DingTalkIdentityProvider extends AbstractOAuth2IdentityProvider<OAu
         return uriBuilder;
     }
 
-
-//    @Override
-//    public SimpleHttp authenticateTokenRequest(final SimpleHttp tokenRequest) {
-//        SimpleHttp superTokenRequest = super.authenticateTokenRequest(tokenRequest);
-//        try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(getConfig().getClientSecret())) {
-//            if (getConfig().isBasicAuthentication()) {
-//                return tokenRequest.authBasic(getConfig().getClientId(), vaultStringSecret.get().orElse(getConfig().getClientSecret()));
-//            }
-//
-//            String timestamp = String.valueOf(System.currentTimeMillis());
-//            String signature = getSignature(vaultStringSecret.get().orElse(getConfig().getClientSecret()), timestamp);
-//            return superTokenRequest
-//                    .param("accessKey", getConfig().getClientId())
-//                    .param("timestamp", timestamp)
-//                    .param("signature", signature);
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (InvalidKeyException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return superTokenRequest;
-//    }
-
-
-//    @Override
-//    public SimpleHttp authenticateTokenRequest(final SimpleHttp tokenRequest) {
-//        SimpleHttp superTokenRequest = super.authenticateTokenRequest(tokenRequest);
-//        try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(getConfig().getClientSecret())) {
-//            if (getConfig().isBasicAuthentication()) {
-//                return tokenRequest.authBasic(getConfig().getClientId(), vaultStringSecret.get().orElse(getConfig().getClientSecret()));
-//            }
-//            return superTokenRequest
-//                    .param("appkey", getConfig().getClientId())
-//                    .param("appsecret", vaultStringSecret.get().orElse(getConfig().getClientSecret()));
-//        }
-//    }
-
     @Override
     protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event, JsonNode profile) {
         BrokeredIdentityContext user = new BrokeredIdentityContext(getJsonProperty(profile, "openid"));

@@ -3,7 +3,11 @@
     {
       "name": "keycloakCN",
       "types": [
-        "login"
+        "login",
+        "welcome",
+        "account",
+        "admin",
+        "email"
       ]
     }
   ]
