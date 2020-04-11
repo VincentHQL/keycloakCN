@@ -1,4 +1,4 @@
-package org.vincenthql.keycloak.social.qq;
+package org.vincenthql.keycloak.social;
 
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.provider.AbstractIdentityProviderFactory;
@@ -6,6 +6,9 @@ import org.keycloak.broker.social.SocialIdentityProviderFactory;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.KeycloakSession;
 
+/**
+ * QQ登录
+ */
 public class QQIdentityProviderFactory extends AbstractIdentityProviderFactory<QQIdentityProvider>
         implements SocialIdentityProviderFactory<QQIdentityProvider> {
 

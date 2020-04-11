@@ -1,4 +1,4 @@
-package org.vincenthql.keycloak.social.weixin;
+package org.vincenthql.keycloak.social;
 
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
 import org.keycloak.broker.social.SocialIdentityProvider;
@@ -7,7 +7,7 @@ import org.keycloak.models.KeycloakSession;
 /**
  * 微信公众平台
  */
-public class WeiXinMpIdentityProvider extends WeiXinAbstractIdentityProvider<OAuth2IdentityProviderConfig>
+public class WeChatMpIdentityProvider extends WeChatAbstractIdentityProvider<OAuth2IdentityProviderConfig>
         implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
 
@@ -18,7 +18,7 @@ public class WeiXinMpIdentityProvider extends WeiXinAbstractIdentityProvider<OAu
 
     public static final String DEFAULT_SCOPE = "snsapi_userinfo";
 
-    public WeiXinMpIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
+    public WeChatMpIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
         super(session, config);
         config.setAuthorizationUrl(AUTH_URL);
         config.setTokenUrl(TOKEN_URL);

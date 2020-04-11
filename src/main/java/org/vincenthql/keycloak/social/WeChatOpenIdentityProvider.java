@@ -1,4 +1,4 @@
-package org.vincenthql.keycloak.social.weixin;
+package org.vincenthql.keycloak.social;
 
 
 import org.keycloak.broker.oidc.OAuth2IdentityProviderConfig;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriBuilder;
 /**
  * 微信开放平台
  */
-public class WeiXinOpenIdentityProvider extends WeiXinAbstractIdentityProvider<OAuth2IdentityProviderConfig>
+public class WeChatOpenIdentityProvider extends WeChatAbstractIdentityProvider<OAuth2IdentityProviderConfig>
         implements SocialIdentityProvider<OAuth2IdentityProviderConfig> {
 
     public static final String AUTH_URL = "https://open.weixin.qq.com/connect/qrconnect";
@@ -19,7 +19,7 @@ public class WeiXinOpenIdentityProvider extends WeiXinAbstractIdentityProvider<O
     public static final String PROFILE_URL = "https://api.weixin.qq.com/sns/userinfo";
     public static final String DEFAULT_SCOPE = "snsapi_login";
 
-    public WeiXinOpenIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
+    public WeChatOpenIdentityProvider(KeycloakSession session, OAuth2IdentityProviderConfig config) {
         super(session, config);
         config.setAuthorizationUrl(AUTH_URL);
         config.setTokenUrl(TOKEN_URL);

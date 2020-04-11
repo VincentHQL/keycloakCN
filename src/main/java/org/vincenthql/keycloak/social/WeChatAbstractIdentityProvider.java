@@ -1,4 +1,4 @@
-package org.vincenthql.keycloak.social.weixin;
+package org.vincenthql.keycloak.social;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.keycloak.broker.oidc.AbstractOAuth2IdentityProvider;
@@ -14,12 +14,12 @@ import org.keycloak.vault.VaultStringSecret;
 
 import javax.ws.rs.core.UriBuilder;
 
-public abstract class WeiXinAbstractIdentityProvider<C extends OAuth2IdentityProviderConfig> extends AbstractOAuth2IdentityProvider<C> {
+public abstract class WeChatAbstractIdentityProvider<C extends OAuth2IdentityProviderConfig> extends AbstractOAuth2IdentityProvider<C> {
 
 
     public static final String PROFILE_URL = "https://api.weixin.qq.com/sns/userinfo";
 
-    public WeiXinAbstractIdentityProvider(KeycloakSession session, C config) {
+    public WeChatAbstractIdentityProvider(KeycloakSession session, C config) {
         super(session, config);
     }
 

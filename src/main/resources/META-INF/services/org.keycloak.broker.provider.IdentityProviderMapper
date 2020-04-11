@@ -1,2 +1,3 @@
 
-org.vincenthql.keycloak.social.weixin.WeiXinMpUserAttributeMapper
+org.vincenthql.keycloak.social.WeChatMpUserAttributeMapper
+org.vincenthql.keycloak.social.DingTalkUserAttributeMapper
