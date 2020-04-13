@@ -13,6 +13,7 @@ import org.keycloak.models.KeycloakSessionFactory;
  * 验证手机号
  */
 public class VerifyPhoneNumber implements RequiredActionProvider, RequiredActionFactory, DisplayTypeRequiredActionFactory {
+
     private static final Logger logger = Logger.getLogger(VerifyPhoneNumber.class);
 
     public static final String PROVIDER_ID = "verify-phone-number";

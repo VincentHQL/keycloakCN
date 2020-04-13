@@ -49,6 +49,11 @@
             <version>${spring.boot.alibaba.druid.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>${twilio.version}</version>
+        </dependency>
 
         <!-- Keycloak server -->
 
@@ -186,7 +191,7 @@
         <mysql.connector.version>8.0.13</mysql.connector.version>
         <spring.boot.alibaba.druid.version>1.1.21</spring.boot.alibaba.druid.version>
         <spring-cloud-alibaba-dependencies.version>2.0.0.RELEASE</spring-cloud-alibaba-dependencies.version>
-
+        <twilio.version>7.43.1</twilio.version>
         <keycloak.version>8.0.2</keycloak.version>
         <resteasy.version>3.9.0.Final</resteasy.version>
         <jboss.modules>1.9.2.Final</jboss.modules>

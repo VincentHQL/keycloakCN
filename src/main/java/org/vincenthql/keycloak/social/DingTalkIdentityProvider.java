@@ -27,6 +27,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -77,6 +79,7 @@ public class DingTalkIdentityProvider extends AbstractOAuth2IdentityProvider<OAu
 
     /**
      * 计算签名
+     *
      * @param appSecret
      * @param timestamp
      * @return
@@ -93,6 +96,19 @@ public class DingTalkIdentityProvider extends AbstractOAuth2IdentityProvider<OAu
         return new String(Base64.encodeBase64(signatureBytes));
     }
 
+    // encoding参数使用utf-8
+    private String urlEncode(String value, String encoding) {
+        if (value == null) {
+            return "";
+        }
+        try {
+            String encoded = URLEncoder.encode(value, encoding);
+            return encoded.replace("+", "%20").replace("*", "%2A")
+                    .replace("~", "%7E").replace("/", "%2F");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("FailedToEncodeUri", e);
+        }
+    }
 
     @Override
     protected String getDefaultScopes() {
@@ -154,19 +170,18 @@ public class DingTalkIdentityProvider extends AbstractOAuth2IdentityProvider<OAu
     }
 
 
-
     private BrokeredIdentityContext getFederatedIdentityByCode(String authorizationCode) {
         try (VaultStringSecret vaultStringSecret = session.vault().getStringSecret(getConfig().getClientSecret())) {
             Map params = new HashMap<String, String>(1);
             params.put("tmp_auth_code", authorizationCode);
             String timestamp = String.valueOf(System.currentTimeMillis());
 
-            String url = String.format("%s?accessKey=%s&timestamp=%s&signature=%s", PROFILE_URL, getConfig().getClientId(), timestamp, getSignature(vaultStringSecret.get().orElse(getConfig().getClientSecret()), timestamp));
+            String url = String.format("%s?accessKey=%s&timestamp=%s&signature=%s", PROFILE_URL, getConfig().getClientId(), timestamp, urlEncode(getSignature(vaultStringSecret.get().orElse(getConfig().getClientSecret()), timestamp), "UTF-8"));
 
             JsonNode profile = SimpleHttp.doPost(url, session)
                     .json(params)
                     .asJson();
-            if ("0".equals(getJsonProperty(profile, "errcode"))){
+            if ("0".equals(getJsonProperty(profile, "errcode"))) {
                 return extractIdentityFromProfile(null, profile.get("user_info"));
             } else {
                 throw new RuntimeException(getJsonProperty(profile, "errmsg"));

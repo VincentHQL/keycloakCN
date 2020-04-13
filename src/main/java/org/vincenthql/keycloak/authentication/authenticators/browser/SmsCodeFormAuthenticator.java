@@ -12,6 +12,11 @@ import org.keycloak.models.UserModel;
  */
 public class SmsCodeFormAuthenticator extends AbstractUsernameFormAuthenticator implements Authenticator {
 
+    private static final String FLOW_AUTHENTICATE = "authenticate";
+    private static final String USER_ATTR_PHONE_KEY = "phoneNumber";
+
+
+
     @Override
     public void authenticate(AuthenticationFlowContext context) {
 
