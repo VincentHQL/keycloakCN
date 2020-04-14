@@ -74,8 +74,8 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
         String action = formData.getFirst("submitAction");
         // 发送验证码
         if (action != null && action.equals("doSendSmsCode")) {
-            boolean isOk = sendSmsCode(formData.getFirst(FIELD_PHONE_NUMBER), context);
-            if (isOk) {
+            String signToken = sendSmsCode(formData.getFirst(FIELD_PHONE_NUMBER), context);
+            if (signToken!=null) {
                 Response challenge = context.form()
                         .addError(new FormMessage("发送验证码成功"))
                         .setAttribute(LoginFormsProvider.UPDATE_PROFILE_CONTEXT_ATTR, userCtx)
@@ -112,18 +112,18 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
 
     /**
      * 发送短信验证码
-     *
+     *  发送成功后，生成一个UUID
      * @param phoneNumber
      * @param context
      * @return
      */
-    private boolean sendSmsCode(String phoneNumber, AuthenticationFlowContext context) {
+    private String sendSmsCode(String phoneNumber, AuthenticationFlowContext context) {
         AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
         String code = String.valueOf((int) ((Math.random() * 9 + 1) * Math.pow(10, 6 - 1)));
         SmsSenderProvider smsSenderProvider = context.getSession().getProvider(SmsSenderProvider.class);
         smsSenderProvider.send(phoneNumber, "verify code: " + code);
 
-        return true;
+        return null;
     }
 
     private void addError(List<FormMessage> errors, String field, String message) {

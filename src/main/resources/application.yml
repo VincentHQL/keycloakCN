@@ -3,13 +3,13 @@ server:
 
 spring:
   application:
-    name: bslcloud-keycloak
+    name: keycloakCN
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://rm-wz9d8u75j300675v7lo.mysql.rds.aliyuncs.com:3306/keycloak?useunicode=true&serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false
-    username: dev_hql
-    password: gnzSYtY4$QPF#2!8
+    url: jdbc:${DB_VENDOR:mysql}://${DB_ADDR:127.0.0.1}:${MYSQL_PORT:3306}/${DB_DATABASE:keycloak}?useunicode=true&serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false
+    username: ${DB_USER:keycloak}
+    password: ${DB_PASSWORD:keycloak}
     druid:
       # 连接池配置
       filters: stat,slf4j
@@ -28,6 +28,6 @@ keycloak:
   server:
     contextPath: /auth
     adminUser:
-      username: admin
-      password: admin
+      username: ${KEYCLOAK_USER:admin}
+      password: ${KEYCLOAK_PASSWORD:admin}
     realmImportFile: import-realm.json
