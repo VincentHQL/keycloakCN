@@ -8,19 +8,17 @@ import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
-import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.IdentityProviderModel;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.FormMessage;
-import org.keycloak.services.messages.Messages;
 import org.keycloak.services.resources.AttributeFormDataProcessor;
-import org.keycloak.services.validation.Validation;
-import org.vincenthql.keycloak.sms.SmsSenderProvider;
+import org.vincenthql.keycloak.utils.KeycloakCNUtils;
+import org.vincenthql.keycloak.utils.ValidationCN;
 
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,13 +27,10 @@ import java.util.List;
 public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenticator {
     private static final Logger logger = Logger.getLogger(IdpReviewPhoneProfileAuthenticator.class);
 
-    private static final String FIELD_PHONE_NUMBER = "user.attributes.phoneNumber";
-    private static final String FIELD_VERIFY_CODE = "verifyCode";
 
     @Override
     protected void authenticateImpl(AuthenticationFlowContext context, SerializedBrokeredIdentityContext userCtx, BrokeredIdentityContext brokerContext) {
         IdentityProviderModel idpConfig = brokerContext.getIdpConfig();
-
         if (requiresUpdateProfilePage(context, userCtx, brokerContext)) {
 
             logger.debugf("Identity provider '%s' requires update profile action for broker user '%s'.", idpConfig.getAlias(), userCtx.getUsername());
@@ -60,7 +55,7 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 
         RealmModel realm = context.getRealm();
-        List<FormMessage> errors = validateUpdateProfileForm(realm, formData);
+        List<FormMessage> errors = ValidationCN.validateUpdateProfileCNForm(realm, formData);
         if (errors != null && !errors.isEmpty()) {
             Response challenge = context.form()
                     .setErrors(errors)
@@ -72,12 +67,17 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
         }
 
         String action = formData.getFirst("submitAction");
+        String phoneNumber = formData.getFirst(ValidationCN.FIELD_PHONE_NUMBER);
+        userCtx.setAttribute(ValidationCN.FIELD_PHONE_NUMBER, Arrays.asList(phoneNumber));
+
         // 发送验证码
         if (action != null && action.equals("doSendSmsCode")) {
-            String signToken = sendSmsCode(formData.getFirst(FIELD_PHONE_NUMBER), context);
-            if (signToken!=null) {
+            String code = String.valueOf((int) ((Math.random() * 9 + 1) * Math.pow(10, 6 - 1)));
+            if (KeycloakCNUtils.sendSmsCode(context.getSession(), phoneNumber, "您的验证码：" + code)) {
+                context.getAuthenticationSession().setAuthNote(KeycloakCNUtils.USR_CRED_MDL_SMS_CODE, code);
+                context.getAuthenticationSession().setAuthNote(KeycloakCNUtils.USR_CRED_MDL_SMS_EXP_TIME, String.valueOf(System.currentTimeMillis() + 60000));
                 Response challenge = context.form()
-                        .addError(new FormMessage("发送验证码成功"))
+                        .addSuccess(new FormMessage("发送验证码成功"))
                         .setAttribute(LoginFormsProvider.UPDATE_PROFILE_CONTEXT_ATTR, userCtx)
                         .setAttribute("sendCode", true)
                         .setFormData(formData)
@@ -94,6 +94,31 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
 
             return;
         }
+
+        String verifyCode = formData.getFirst(ValidationCN.FIELD_VERIFY_CODE);
+        //判断短信验证码是否正确
+        if (ValidationCN.isBlank(verifyCode)) {
+            Response challenge = context.form()
+                    .addError(new FormMessage("验证码不能为空"))
+                    .setAttribute(LoginFormsProvider.UPDATE_PROFILE_CONTEXT_ATTR, userCtx)
+                    .setFormData(formData)
+                    .createUpdateProfilePage();
+            context.challenge(challenge);
+            return;
+        }
+
+        try {
+            KeycloakCNUtils.isVerifyCodeValid(context.getAuthenticationSession(), verifyCode);
+        } catch (Exception e) {
+            Response challenge = context.form()
+                    .addError(new FormMessage(e.getMessage()))
+                    .setAttribute(LoginFormsProvider.UPDATE_PROFILE_CONTEXT_ATTR, userCtx)
+                    .setFormData(formData)
+                    .createUpdateProfilePage();
+            context.challenge(challenge);
+            return;
+        }
+
         userCtx.setUsername(formData.getFirst(UserModel.USERNAME));
 
 
@@ -108,52 +133,6 @@ public class IdpReviewPhoneProfileAuthenticator extends IdpReviewProfileAuthenti
 
         context.success();
     }
-
-
-    /**
-     * 发送短信验证码
-     *  发送成功后，生成一个UUID
-     * @param phoneNumber
-     * @param context
-     * @return
-     */
-    private String sendSmsCode(String phoneNumber, AuthenticationFlowContext context) {
-        AuthenticatorConfigModel configModel = context.getAuthenticatorConfig();
-        String code = String.valueOf((int) ((Math.random() * 9 + 1) * Math.pow(10, 6 - 1)));
-        SmsSenderProvider smsSenderProvider = context.getSession().getProvider(SmsSenderProvider.class);
-        smsSenderProvider.send(phoneNumber, "verify code: " + code);
-
-        return null;
-    }
-
-    private void addError(List<FormMessage> errors, String field, String message) {
-        errors.add(new FormMessage(field, message));
-    }
-
-    private List<FormMessage> validateUpdateProfileForm(RealmModel realm, MultivaluedMap<String, String> formData) {
-        List<FormMessage> errors = new ArrayList<>();
-
-        if (!realm.isRegistrationEmailAsUsername() && realm.isEditUsernameAllowed() && Validation.isBlank(formData.getFirst(Validation.FIELD_USERNAME))) {
-            addError(errors, Validation.FIELD_USERNAME, Messages.MISSING_USERNAME);
-        }
-
-        if (Validation.isBlank(formData.getFirst(FIELD_PHONE_NUMBER))) {
-            addError(errors, FIELD_PHONE_NUMBER, "missingPhoneNumberMessage");
-        } else if (!isPhoneNumberValid(formData.getFirst(FIELD_PHONE_NUMBER))) {
-            addError(errors, FIELD_PHONE_NUMBER, "invalidPhoneNumberMessage");
-        }
-
-        return errors;
-    }
-
-
-    private boolean isPhoneNumberValid(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.length() != 11) {
-            return false;
-        }
-        return true;
-    }
-
 
 
 }

@@ -21,7 +21,7 @@
                     <label for="phoneNumber" class="${properties.kcLabelClass!}">${msg("phoneNumber")}</label>
                 </div>
                 <div class="${properties.kcInputWrapperClass!}">
-                    <input type="text" id="phoneNumber" name="user.attributes.phoneNumber" value="${(user.attributes.phoneNumber!'')}"
+                    <input type="text" id="phoneNumber" name="phoneNumber" value="${(user.attributes.phoneNumber!'')}"
                            class="${properties.kcInputClass!}"/>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                             name="submitAction"
                             id="senCodeBtn"
                             type="submit"
-                            value="doSendSmsCode">验证码
+                            value="doSendSmsCode">获取验证码
                     </button>
                 </div>
             </div>
@@ -79,8 +79,8 @@
                         getcodeBtn.innerHTML = a + "s"
                     }
                     else {
-                        clearInterval(code)
-                        getcodeBtn.disabled = ""
+                        clearInterval(code);
+                        getcodeBtn.disabled = "";
                         getcodeBtn.innerHTML = "获取验证码"
                     }
                 }, 1000)
